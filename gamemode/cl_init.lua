@@ -2,7 +2,6 @@ include('shared.lua')
 include('cl_quake.lua')
 
 CreateClientConVar( "gg_hp_overlay", "0", true, false )
-CreateClientConVar( "gg_team_halos", "0", true, false )
 CreateClientConVar( "gg_quake_sounds", "0", true, false )
 CreateClientConVar( "gg_large_Kill_Counter", "0", true, false )
 
@@ -49,8 +48,6 @@ hook.Add("HUDPaint", "DrawStuff", function(ply)
 
 ply = LocalPlayer()
  
-local team2 = team.GetName(ply:Team())
-local teamcolor = team.GetColor(ply:Team())
 local level = ply:GetNWInt("level")
 local mlevel = ply:GetNWInt("maxlevel")
 local round = GetGlobalFloat("rounds")
@@ -61,7 +58,6 @@ local armorpos = ScrH()/1.17
 local healthcolor = Color(255,0,0,200)
 local roundpos = ScrH()/9.3
 local levelpos = ScrH()/50
-local teampos = ScrH()/50
 local leader = GetGlobalFloat("Leader")
 
 local hp = ply:Health()
@@ -73,15 +69,15 @@ local widthr = ScrW()
 
 
 draw.TexturedQuad
-{
-        texture = surface.GetTextureID "gui/gradient",
-        color = Color(10, 10, 10, 200),
-        x = 0,
-        y = ScrH()/10,
-        w = 150,
-        h = 95
-       
-}
+	{
+	        texture = surface.GetTextureID "gui/gradient",
+	        color = Color(10, 10, 10, 200),
+	        x = 0,
+	        y = ScrH()/10,
+	        w = 150,
+	        h = 95
+	       
+	}
  
 struc = {}
 struc["pos"] = {5, roundpos}
@@ -100,7 +96,7 @@ struc["font"] = "Hud"
 struc["xalign"] = TEXT_ALIGN_LEFT
 struc["yalign"] = TEXT_ALIGN_TOP
 draw.TextShadow( struc, 2, 200 )
- 
+
 struc = {}
 struc["pos"] = {5, roundpos + 40}
 struc["color"] = Color(255, 255, 255, 240)
@@ -110,25 +106,7 @@ struc["xalign"] = TEXT_ALIGN_LEFT
 struc["yalign"] = TEXT_ALIGN_TOP
 draw.TextShadow( struc, 2, 200 )
 
-if GetConVarNumber("gg_freeforall") == 0 then
-struc = {}
-struc["pos"] = {5, roundpos + 60}
-struc["color"] = Color(255, 255, 255, 240)
-struc["text"] = "Team"
-struc["font"] = "Hud"
-struc["xalign"] = TEXT_ALIGN_LEFT
-struc["yalign"] = TEXT_ALIGN_TOP
-draw.TextShadow( struc, 2, 200 )
 
-struc = {}
-struc["pos"] = {60, roundpos + 60}
-struc["color"] = teamcolor
-struc["text"] = team2
-struc["font"] = "Hud"
-struc["xalign"] = TEXT_ALIGN_LEFT
-struc["yalign"] = TEXT_ALIGN_TOP
-draw.TextShadow( struc, 2, 200 )
-else
 struc = {}
 struc["pos"] = {5, roundpos + 60}
 struc["color"] = Color(255, 255, 255, 240)
@@ -137,61 +115,60 @@ struc["font"] = "Hud"
 struc["xalign"] = TEXT_ALIGN_LEFT
 struc["yalign"] = TEXT_ALIGN_TOP
 draw.TextShadow( struc, 2, 200 )
-end
  
- if GetConVarNumber("gg_large_Kill_Counter") == 1 then
+if GetConVarNumber("gg_large_Kill_Counter") == 1 then
 	if level == GetGlobalFloat("FinalLevel") then
-struc = {}
-struc["pos"] = {ScrW()/2, ScrH()/1.2}
-struc["color"] = Color(255, 255, 255, 240)
-struc["text"] = "Final Kill"
-struc["font"] = "HudR"
-struc["xalign"] = TEXT_ALIGN_CENTER
-struc["yalign"] = TEXT_ALIGN_TOP
-draw.TextShadow( struc, 2, 200 )
-	
+		struc = {}
+		struc["pos"] = {ScrW()/2, ScrH()/1.2}
+		struc["color"] = Color(255, 255, 255, 240)
+		struc["text"] = "Final Kill"
+		struc["font"] = "HudR"
+		struc["xalign"] = TEXT_ALIGN_CENTER
+		struc["yalign"] = TEXT_ALIGN_TOP
+		draw.TextShadow( struc, 2, 200 )
+
 	else
-struc = {}
-struc["pos"] = {ScrW()/2, ScrH()/1.2}
-struc["color"] = Color(255, 255, 255, 240)
-struc["text"] = "Kills this level: "..kills.. "/" ..GetConVarNumber("gg_kills_per_level")
-struc["font"] = "HudR"
-struc["xalign"] = TEXT_ALIGN_CENTER
-struc["yalign"] = TEXT_ALIGN_TOP
-draw.TextShadow( struc, 2, 200 )
+		struc = {}
+		struc["pos"] = {ScrW()/2, ScrH()/1.2}
+		struc["color"] = Color(255, 255, 255, 240)
+		struc["text"] = "Kills this level: "..kills.. "/" ..GetConVarNumber("gg_kills_per_level")
+		struc["font"] = "HudR"
+		struc["xalign"] = TEXT_ALIGN_CENTER
+		struc["yalign"] = TEXT_ALIGN_TOP
+		draw.TextShadow( struc, 2, 200 )
 	end
 else
-draw.TexturedQuad
-{
-        texture = surface.GetTextureID "gui/gradient",
-        color = Color(10, 10, 10, 200),
-        x = 0,
-        y = ScrH()/10+95,
-        w = 150,
-        h = 25
-       
-} 
+	draw.TexturedQuad
+	{
+	        texture = surface.GetTextureID "gui/gradient",
+	        color = Color(10, 10, 10, 200),
+	        x = 0,
+	        y = ScrH()/10+95,
+	        w = 150,
+	        h = 25
+	       
+	} 
 
-if level == GetGlobalFloat("FinalLevel") then
-struc = {}
-struc["pos"] = {5, roundpos + 80}
-struc["color"] = Color(255, 255, 255, 240)
-struc["text"] = "Final Kill"
-struc["font"] = "Hud"
-struc["xalign"] = TEXT_ALIGN_LEFT
-struc["yalign"] = TEXT_ALIGN_TOP
-draw.TextShadow( struc, 2, 200 )
+	if level == GetGlobalFloat("FinalLevel") then
+		struc = {}
+		struc["pos"] = {5, roundpos + 80}
+		struc["color"] = Color(255, 255, 255, 240)
+		struc["text"] = "Final Kill"
+		struc["font"] = "Hud"
+		struc["xalign"] = TEXT_ALIGN_LEFT
+		struc["yalign"] = TEXT_ALIGN_TOP
+		draw.TextShadow( struc, 2, 200 )
 
-else
-struc = {}
-struc["pos"] = {5, roundpos + 80}
-struc["color"] = Color(255, 255, 255, 240)
-struc["text"] = "Kills: "..kills.. "/" ..GetConVarNumber("gg_kills_per_level")
-struc["font"] = "Hud"
-struc["xalign"] = TEXT_ALIGN_LEFT
-struc["yalign"] = TEXT_ALIGN_TOP
-draw.TextShadow( struc, 2, 200 )
- end
+	else
+		struc = {}
+		struc["pos"] = {5, roundpos + 80}
+		struc["color"] = Color(255, 255, 255, 240)
+		struc["text"] = "Kills: "..kills.. "/" ..GetConVarNumber("gg_kills_per_level")
+		struc["font"] = "Hud"
+		struc["xalign"] = TEXT_ALIGN_LEFT
+		struc["yalign"] = TEXT_ALIGN_TOP
+		draw.TextShadow( struc, 2, 200 )
+ 	end
  end
  
 draw.TexturedQuad
@@ -213,24 +190,23 @@ struc["font"] = "HudL"
 struc["xalign"] = TEXT_ALIGN_LEFT
 struc["yalign"] = TEXT_ALIGN_TOP
 draw.TextShadow( struc, 2, 200 )
+
 if ShowSpawnStuff and ply:Alive() then
-struc = {}
-struc["pos"] = {ScrW()/2, ScrH()/2}
-struc["color"] = Color(255, 255, 255, 240)
-struc["text"] = "Press JUMP to spawn!"
-struc["font"] = "HudR"
-struc["xalign"] = TEXT_ALIGN_CENTER
-struc["yalign"] = TEXT_ALIGN_TOP
-draw.TextShadow( struc, 2, 200 )
+	struc = {}
+	struc["pos"] = {ScrW()/2, ScrH()/2}
+	struc["color"] = Color(255, 255, 255, 240)
+	struc["text"] = "Press JUMP to spawn!"
+	struc["font"] = "HudR"
+	struc["xalign"] = TEXT_ALIGN_CENTER
+	struc["yalign"] = TEXT_ALIGN_TOP
+	draw.TextShadow( struc, 2, 200 )
 end
  
 if hp > 0 then
 	if ply:GetActiveWeapon():IsValid() then
-	ammo = ply:GetActiveWeapon():Clip1()
-	wepname = ply:GetActiveWeapon():GetPrintName()
+		ammo = ply:GetActiveWeapon():Clip1()
+		wepname = ply:GetActiveWeapon():GetPrintName()
 	end
-
-
 end
 
 
@@ -238,27 +214,27 @@ end
 
 if ammo and ammo > 0 then
 
-   surface.SetTexture(surface.GetTextureID("gui/gradient"))
-   surface.SetDrawColor(10, 10, 10, 255)
-   surface.DrawTexturedRectRotated(width+100,height +40,305,115,180)
+	surface.SetTexture(surface.GetTextureID("gui/gradient"))
+	surface.SetDrawColor(10, 10, 10, 255)
+	surface.DrawTexturedRectRotated(width+100,height +40,305,115,180)
    
-struc = {}
-struc["pos"] = {width + 100, height + 20}
-struc["color"] = Color(255, 255, 255, 240)
-struc["text"] = ammo
-struc["font"] = "HudL"
-struc["xalign"] = TEXT_ALIGN_CENTER
-struc["yalign"] = TEXT_ALIGN_TOP
-draw.TextShadow( struc, 2, 200 )
+	struc = {}
+	struc["pos"] = {width + 100, height + 20}
+	struc["color"] = Color(255, 255, 255, 240)
+	struc["text"] = ammo
+	struc["font"] = "HudL"
+	struc["xalign"] = TEXT_ALIGN_CENTER
+	struc["yalign"] = TEXT_ALIGN_TOP
+	draw.TextShadow( struc, 2, 200 )
 
-struc = {}
-struc["pos"] = {width + 100, height - 5}
-struc["color"] = Color(255, 255, 255, 240)
-struc["text"] = wepname
-struc["font"] = "HudH"
-struc["xalign"] = TEXT_ALIGN_CENTER
-struc["yalign"] = TEXT_ALIGN_TOP
-draw.TextShadow( struc, 2, 200 )
+	struc = {}
+	struc["pos"] = {width + 100, height - 5}
+	struc["color"] = Color(255, 255, 255, 240)
+	struc["text"] = wepname
+	struc["font"] = "HudH"
+	struc["xalign"] = TEXT_ALIGN_CENTER
+	struc["yalign"] = TEXT_ALIGN_TOP
+	draw.TextShadow( struc, 2, 200 )
 else
 
 
@@ -267,14 +243,14 @@ else
    surface.DrawTexturedRectRotated(width+100,height +40,305,65,180)
 
 
-struc = {}
-struc["pos"] = {width + 100, height + 30}
-struc["color"] = Color(255, 255, 255, 240)
-struc["text"] = wepname or "No weapon"
-struc["font"] = "HudH"
-struc["xalign"] = TEXT_ALIGN_CENTER
-struc["yalign"] = TEXT_ALIGN_TOP
-draw.TextShadow( struc, 2, 200 )
+	struc = {}
+	struc["pos"] = {width + 100, height + 30}
+	struc["color"] = Color(255, 255, 255, 240)
+	struc["text"] = wepname or "No weapon"
+	struc["font"] = "HudH"
+	struc["xalign"] = TEXT_ALIGN_CENTER
+	struc["yalign"] = TEXT_ALIGN_TOP
+	draw.TextShadow( struc, 2, 200 )
 end
 
 draw.TexturedQuad
@@ -347,21 +323,6 @@ draw.TextShadow( struc, 2, 200 )
 
 end )
 
-hook.Add( "PreDrawHalos", "TeamGlow", function()
-	if GetConVarNumber("gg_team_halos") == 1 then
-		local localteam = LocalPlayer():Team()
-		localTeam = {}
-	
-		for k,v in pairs(player.GetAll()) do
-			if v:Team() == localteam then
-				table.insert(localTeam, v) 
-				end
-		end
-			if GetConVarNumber("gg_freeforall") == 0 then
-				halo.Add( localTeam , Color(0,255,0), 2, 2, 2, true, true)
-			end
-	end
-end)
  
 function GM:DrawDeathNotice(x, y)
 	self.BaseClass:DrawDeathNotice(x, y)
@@ -371,7 +332,8 @@ local tohide = {
 	["CHudHealth"] = true,
 	["CHudBattery"] = true,
 	["CHudAmmo"] = true,
-	}
+}
+
 local function HUDShouldDraw(name) 
 	if (tohide[name]) then   
 		return false;   
@@ -385,9 +347,9 @@ local function OVERLAY()
 
 
         if health < 30 then
-                local panic = 1 - health/30
+            local panic = 1 - health/30
 
-                local fScale = 3
+            local fScale = 3
 
             local tab = {}
             
@@ -410,13 +372,13 @@ local function OVERLAY()
             DrawColorModify( tab );
         end
 
-        if health <= 10 then
-                DrawToyTown( 8, ScrH()/2 )
-        elseif health <= 20 then
-                DrawToyTown( 6, ScrH()/2 )
-        elseif health <= 35 then
-                DrawToyTown( 4, ScrH()/2 )
-        end
+		if health <= 10 then
+			DrawToyTown( 8, ScrH()/2 )
+		elseif health <= 20 then
+			DrawToyTown( 6, ScrH()/2 )
+		elseif health <= 35 then
+			DrawToyTown( 4, ScrH()/2 )
+		end
 
 	end
 end
@@ -465,12 +427,6 @@ local function HelpMenu()
     QuakeSounds:SizeToContents()
 	DermaList:AddItem( QuakeSounds )
  
-    local TeamHalos = vgui.Create( "DCheckBoxLabel"  )
-    TeamHalos:SetText( "Team Halos" )
-	TeamHalos:SetTextColor(Color(255,255,255))
-    TeamHalos:SetConVar( "gg_team_halos" )
-    TeamHalos:SizeToContents()
-	DermaList:AddItem( TeamHalos )
  
     local HPOverlay = vgui.Create( "DCheckBoxLabel"  )
     HPOverlay:SetText( "Health Overlay" )
@@ -599,50 +555,16 @@ local function HelpMenu()
 			Perk3:SetText("Juggernaut")
 		end
     end
-
+--[[
     local Settings = vgui.Create( "DPanel", DermaPanel )
 	Settings:SetPos( 45, 455 )
 	Settings:SetSize( 250, 250 )
 	Settings.Paint = function() -- Paint function
     surface.SetDrawColor( 15, 15, 15, 200 ) -- Set our rect color below us; we do this so you can see items added to this panel
     surface.DrawRect( 0, 0, 220, 140 ) -- Draw the rect
-	draw.DrawText( "Team Switch", "HudR", 15, 5, Color( 255,255,255,255 ), TEXT_ALIGN_LEFT )
 	end
+]]--
 	 
-	local team1 = vgui.Create( "DButton")
-	team1:SetParent( Settings )
-		if LocalPlayer():Team() == 1 then
-			team1:SetText("Join "..team.GetName(2))
-		elseif LocalPlayer():Team() == 2 then
-			team1:SetText("Join "..team.GetName(1))
-		end
-	team1:SetPos( 30, 45 )
-	team1:SetSize(160,80)
-	team1.DoClick = function ()
-		if LocalPlayer():Team() == 1 then
-			if team.NumPlayers(1) > team.NumPlayers(2) then
-				net.Start("teamChange")
-					net.WriteFloat(2)
-				net.SendToServer()
-				DermaPanel:Close()
-				team1:SetText("Join T")
-			else
-			chat.AddText(Color(255,150,0),"Team is full!")
-			surface.PlaySound("common/wpn_denyselect.wav")
-			end
-		elseif LocalPlayer():Team() == 2 then
-			if team.NumPlayers(1) < team.NumPlayers(2) then
-				net.Start("teamChange")
-					net.WriteFloat(1)
-				net.SendToServer()
-				DermaPanel:Close()
-				team1:SetText("Join CT")
-			else
-			chat.AddText(Color(255,150,0),"Team is full!")
-			surface.PlaySound("common/wpn_denyselect.wav")
-			end
-		end
-	end
 
 end
 usermessage.Hook("HelpMenu", HelpMenu)
@@ -765,21 +687,9 @@ end)
 
 hook.Add( "PreDrawHalos", "X-Ray", function()
 	if LocalPlayer():GetNWInt("xray") == 1 and LocalPlayer():GetNWInt("streak") > 6 then
-		local localteam = LocalPlayer():Team()
-		localTeam = {}
-	
-		for k,v in pairs(player.GetAll()) do
-			if v:Team() != localteam then
-				table.insert(localTeam, v) 
-				end
-		end
-			if GetConVarNumber("gg_freeforall") == 0 then
-				halo.Add( localTeam , Color(255,0,0), 2, 2, 2, true, true)
-			else
-				local allplayers = player.GetAll()
-				table.Remove(allplayers,table.KeyFromValue(allplayers,LocalPlayer()))
-				halo.Add( allplayers, Color(255,0,0), 2, 2, 2, true, true)
-			end
+		local allplayers = player.GetAll()
+		table.Remove(allplayers,table.KeyFromValue(allplayers,LocalPlayer()))
+		halo.Add( allplayers, Color(255,0,0), 2, 2, 2, true, true)
 	end
 end)
 

@@ -3,8 +3,6 @@ AddCSLuaFile('cl_init.lua')
 AddCSLuaFile('cl_quake.lua')
 include('shared.lua')
 include('sv_quake.lua')
-include('ttt_spawns.lua')
-
 GM = GM or GAMEMODE
 
 
@@ -87,6 +85,26 @@ function GM:Initialize()
 end
 
 
+local function CreateImportedEnt(cls, pos, ang, kv)
+   if not cls or not pos or not ang or not kv then return false end
+
+   local ent = ents.Create(cls)
+   if not IsValid(ent) then return false end
+   ent:SetPos(pos)
+   ent:SetAngles(ang)
+
+   for k,v in pairs(kv) do
+      ent:SetKeyValue(k, v)
+   end
+
+   ent:Spawn()
+
+   ent:PhysWake()
+
+   return true
+end
+
+
 function CanImportEntities(map)
    if not tostring(map) then return false end
 
@@ -96,55 +114,47 @@ function CanImportEntities(map)
 end
 
 function CreateSpawns(map)
-   if not CanImportEntities(map) then return end
+	if not CanImportEntities(map) then return end
 
-      local fname = "maps/" .. map .. "_ttt.txt"
+		local fname = "maps/" .. map .. "_ttt.txt"
 
-      local buf = file.Read(fname, "GAME")
-      local lines = string.Explode("\n", buf)
-      local num = 0
-      for k, line in ipairs(lines) do
-         if (not string.match(line, "^#")) and (not string.match(line, "^setting")) and line != "" and string.byte(line) != 0 then
-            local data = string.Explode("\t", line)
+		local buf = file.Read(fname, "GAME")
+		local lines = string.Explode("\n", buf)
+		local num = 0
+		for k, line in ipairs(lines) do
+			if (not string.match(line, "^#")) and (not string.match(line, "^setting")) and line != "" and string.byte(line) != 0 then
+				local data = string.Explode("\t", line)
 
-            local fail = true -- pessimism
+				local fail = true -- pessimism
 
-            if data[2] and data[3] then
-               local cls = data[1]
-               local ang = nil
-               local pos = nil
+				if data[2] and data[3] then
+					local cls = data[1]
+					local ang = nil
+					local pos = nil
 
-               local posraw = string.Explode(" ", data[2])
-               pos = Vector(tonumber(posraw[1]), tonumber(posraw[2]), tonumber(posraw[3]))
+					local posraw = string.Explode(" ", data[2])
+					pos = Vector(tonumber(posraw[1]), tonumber(posraw[2]), tonumber(posraw[3]))
 
-               local angraw = string.Explode(" ", data[3])
-               ang = Angle(tonumber(angraw[1]), tonumber(angraw[2]), tonumber(angraw[3]))
+					local angraw = string.Explode(" ", data[3])
+					ang = Angle(tonumber(angraw[1]), tonumber(angraw[2]), tonumber(angraw[3]))
 
-               local kv = {}
-               if data[4] then
-               local kvraw = string.Explode(" ", data[4])
-               local key = kvraw[1]
-               local val = tonumber(kvraw[2])
+					local kv = {}
+					if data[4] then
+						local kvraw = string.Explode(" ", data[4])
+						local key = kvraw[1]
+						local val = tonumber(kvraw[2])
 
-               if key and val then
-                  kv[key] = val
-               end
-            end
+					if key and val then
+						kv[key] = val
+					end
+				end
+				if cls == "ttt_playerspawn" then 
+					CreateImportedEnt("info_player_deathmatch", pos, ang, kv)
+				end
+			end
 
-            if (cls == "ttt_playerspawn")
-               fail = not CreateImportedEnt("info_player_deathmatch", pos, ang, kv)
-            end
-         end
-
-         if fail then
-            ErrorNoHalt("Invalid line " .. k .. " in " .. fname .. "\n")
-         else
-            num = num + 1
-         end
-      end
-   end
-
-   return true
+		end
+	end
 end
 
 
@@ -155,7 +165,7 @@ function PlaceSpawns()
 end
 
 
------ first time level & team -----
+----- first time level -----
 
 function GM:PlayerDeathSound( )
 	return true
@@ -170,37 +180,17 @@ function GM:PlayerInitialSpawn(ply)
 	ply:SetNWInt("Kills",0)
 	ply:SetNWFloat("lastspawn", CurTime())
 
-	if team.NumPlayers(1) < team.NumPlayers(2) then
-		ply:SetTeam(1)
-	elseif team.NumPlayers(1) > team.NumPlayers(2) then
-		ply:SetTeam(2)
-	else
-		ply:SetTeam(math.random(1,2))
-	end
 end
 
 
 
 
 function GM:PlayerSetModel( ply )
-
-	if ply:Team() == 1 then
-		ply:SetModel( table.Random( GMGG.Config.Terrorists))
-	elseif ply:Team() == 2 then
-		ply:SetModel( table.Random( GMGG.Config.Counters))
-	end
+	ply:SetModel( table.Random( GMGG.Config.Terrorists))
 end
 
 ----friendly fire disable----
 function GM:PlayerShouldTakeDamage( victim, pl )
-	if pl:IsPlayer() then 
-
-		if pl == victim then
-			return true
-		elseif( pl:Team() == victim:Team() and GetConVarNumber("gg_freeforall") == 0 ) then 
-			return false 
-		end
-	end
 	return true 
 end
 
@@ -209,65 +199,44 @@ end
 
 
 function GM:PlayerSelectSpawn( ply )
-	if GetConVarNumber("gg_freeforall") == 0 then
-		if ply:Team() == 2 then
-			local spawnCT = ents.FindByClass( "info_player_counterterrorist" )
-			local random_entryCT = math.random(#spawnCT)
- 
-			return spawnCT[random_entryCT]
-		elseif ply:Team() == 1 then
-			local spawnsT = ents.FindByClass( "info_player_terrorist" )
-			local random_entryT = math.random(#spawnsT)
- 
-			return spawnsT[random_entryT]
-		end
-	else
-			local spawnsFFA = ents.FindByClass( "info_player_deathmatch" )
-			local random_entryFFA = math.random(#spawnsFFA)
- 
-			return spawnsFFA[random_entryFFA]
-	end
+
+	local spawnsFFA = ents.FindByClass( "info_player_deathmatch" )
+	local random_entryFFA = math.random(#spawnsFFA)
+
+	return spawnsFFA[random_entryFFA]
 end
 
 
 ------spawn loadout----
 
 function GM:PlayerLoadout(ply)
----no collide ----
-
-if GetConVarNumber("gg_freeforall") == 1 then
-	ply:SetNoCollideWithTeammates( false )
-elseif GetConVarNumber("gg_freeforall") == 0 then
-	ply:SetNoCollideWithTeammates( true )
-end
-
----remove perks----
-ply:SetWalkSpeed(250)
-ply:SetRunSpeed(300)
-ply:SetGravity( 1 )
-ply:SetJumpPower(200)
-ply:SetMaxHealth(100)
-ply.isBuffed = false
-ply.isVamp = false
-timer.Destroy("Regen: "..ply:Nick())
-ply:SetNWInt("xray",0)
-ply:SetJumpPower( math.sqrt(2 * 800 * 57.0) )
---ply:SetHull( Vector( -16, -16, 0 ), Vector( 16, 16, 62 ) )
---ply:SetHullDuck( Vector( -16, -16, 0 ), Vector( 16, 16, 45 ) )
 
 
-----give items----
-local level = ply:GetNWInt("level")
-local weptogive = GMGG.Config.Guns[level]
-ply:SetNWInt("maxlevel", #GMGG.Config.Guns)
-ply:StripWeapons()
-ply:SetNWInt("streak", 0)
-ply:Give(weptogive)
-ply:Give("weapon_cs_knife")
-ply:GiveAmmo(10000000, "pistol")
-ply:GiveAmmo(10000000, "smg1")
-ply:GiveAmmo(10000000, "buckshot")
-ply:AllowFlashlight(true)
+	---remove perks----
+	ply:SetWalkSpeed(250)
+	ply:SetRunSpeed(300)
+	ply:SetGravity( 1 )
+	ply:SetJumpPower(200)
+	ply:SetMaxHealth(100)
+	ply.isBuffed = false
+	ply.isVamp = false
+	timer.Destroy("Regen: "..ply:Nick())
+	ply:SetNWInt("xray",0)
+	ply:SetJumpPower( math.sqrt(2 * 800 * 57.0) )
+
+
+	----give items----
+	local level = ply:GetNWInt("level")
+	local weptogive = GMGG.Config.Guns[level]
+	ply:SetNWInt("maxlevel", #GMGG.Config.Guns)
+	ply:StripWeapons()
+	ply:SetNWInt("streak", 0)
+	ply:Give(weptogive)
+	ply:Give("weapon_cs_knife")
+	ply:GiveAmmo(10000000, "pistol")
+	ply:GiveAmmo(10000000, "smg1")
+	ply:GiveAmmo(10000000, "buckshot")
+	ply:AllowFlashlight(true)
 end
 
 
@@ -400,7 +369,6 @@ end
 
 function GM:gg_round_end(attacker)
 	LevelTable = {}
-	localTeam = {}
 	SetGlobalBool("gg_round_end_dm",true)
 	local dm_time = tonumber(GetConVarNumber("gg_end_dm"))
 	timer.Simple(dm_time, function()
@@ -435,42 +403,33 @@ function GM:gg_round_end(attacker)
 end
 
 function GM:gg_round_begin()
-SetGlobalBool("gg_round_end_dm",false)
-			print("[GunGame] Starting round: "..Round)
-			for k, v in pairs(player.GetAll()) do
-				v:SetNWInt("level", 1)
-				v:SetFrags(0)
-				v:SetDeaths(0)
-				v:Freeze(false)
-				v:Spawn()
-				v:SetNWFloat("lastspawn", CurTime())
-				v:SetNWInt("spawn_camp_warnings", 0)
-				umsg.Start( "IsSpawning", v ) 
-					umsg.Bool(false)
-				umsg.End()
-				v:PrintMessage( HUD_PRINTCENTER, "Starting round ["..Round.." / "..GetConVarNumber("gg_maxrounds").." ]")
-				net.Start("start")
-				net.Send(v)
-			end
-				SetGlobalFloat("rounds", Round)
-				SetGlobalFloat("Leader", 1)
-			timer.Simple(3,function()
-			for k, v in pairs(player.GetAll()) do
-				umsg.Start( "IsSpawning", v ) 
-					umsg.Bool(false)
-				umsg.End()
-			end			
-			end)
-		
-		timer.Simple(2, function() 
-			for k, v in pairs(player.GetAll()) do
-				if GetConVarNumber("gg_freeforall") == 0 then
-					v:PrintMessage( HUD_PRINTCENTER, "Team Deathmatch!")
-				else
-					v:PrintMessage( HUD_PRINTCENTER, "Free for all!")
-				end
-			end
-		end)
+	SetGlobalBool("gg_round_end_dm",false)
+	print("[GunGame] Starting round: "..Round)
+	for k, v in pairs(player.GetAll()) do
+		v:SetNWInt("level", 1)
+		v:SetFrags(0)
+		v:SetDeaths(0)
+		v:Freeze(false)
+		v:Spawn()
+		v:SetNWFloat("lastspawn", CurTime())
+		v:SetNWInt("spawn_camp_warnings", 0)
+		umsg.Start( "IsSpawning", v ) 
+			umsg.Bool(false)
+		umsg.End()
+		v:PrintMessage( HUD_PRINTCENTER, "Starting round ["..Round.." / "..GetConVarNumber("gg_maxrounds").." ]")
+		net.Start("start")
+		net.Send(v)
+	end
+		SetGlobalFloat("rounds", Round)
+		SetGlobalFloat("Leader", 1)
+	timer.Simple(3, function()
+		for k, v in pairs(player.GetAll()) do
+			umsg.Start( "IsSpawning", v ) 
+				umsg.Bool(false)
+			umsg.End()
+		end			
+	end)
+
 end
 
 
@@ -502,9 +461,9 @@ hook.Add("PlayerDeath","spawnProtection",function(ply)
 	if not ply:IsValid() then return end
 	ply:Freeze(false)
 	ply:SetNWInt("IsSpawning",1)
-			umsg.Start( "IsSpawning", ply ) 
-				umsg.Bool(true)
-			umsg.End()
+		umsg.Start( "IsSpawning", ply ) 
+			umsg.Bool(true)
+		umsg.End()
 	end)
 end)
 
@@ -518,21 +477,20 @@ function SpawnProtection(ply)
 end
 
 function GM:KeyPress( ply, key )
- if ( key == IN_ATTACK ) then
-	if ply:Alive() then
-		ply:GodDisable()
-		ply:SetMaterial( "" )
+ 	if ( key == IN_ATTACK ) then
+		if ply:Alive() then
+			ply:GodDisable()
+			ply:SetMaterial( "" )
+		end
+	 	if ( key == IN_JUMP ) and ply:GetNWInt("IsSpawning") == 1 then
+			SpawnFunction(ply)
+		end
 	end
- if ( key == IN_JUMP ) and ply:GetNWInt("IsSpawning") == 1 then
-		SpawnFunction(ply)
-end
-end
 end
 
 
 ---- client convars for hud related stuff -----
 CreateClientConVar( "gg_hp_overlay", "1", true, false )
-CreateClientConVar( "gg_team_halos", "0", true, false )
 CreateClientConVar( "gg_quake_sounds", "0", true, false )
 
 ----- perks -----
@@ -666,30 +624,7 @@ function GM:ShowHelp( ply )
     umsg.End()
 end
 
--- Team menu --
-function teamMenu( ply )
-	umsg.Start( "TeamMenu", ply ) 
-    umsg.End()
-end
-hook.Add("ShowTeam", "TeamMenu", teamMenu)
 
---team change--
-util.AddNetworkString("TeamChange")
-
-net.Receive("TeamChange", function(len,ply)
-	local newTeam = net.ReadFloat()
-	ply:SetTeam(newTeam)
-		ply:Spawn()
-		ply:GodEnable()
-		ply:SetMaterial( "models/props_combine/stasisshield_sheet" )
-	
-	timer.Simple(GetConVarNumber("gg_spawnprotection") + 2, function()
-		if ply:IsValid() then
-			ply:GodDisable()
-			ply:SetMaterial( "" )
-		end
-	end)
-end)
 
 util.AddNetworkString("AmmoonKill")
 util.AddNetworkString("KillsPerLevel")
