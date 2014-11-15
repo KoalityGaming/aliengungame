@@ -1,0 +1,58 @@
+"Gamemode"
+{
+	"base"		"base"
+	"title"		"Gun Game"	
+	"maps"		"gg_*"
+	"author"	"Lost Alien"
+	"menusystem"	"1"
+	"workshopid"	"246807294"
+	
+	"settings"
+	{
+		1
+		{
+			"name"		"gg_ammo_on_kill"
+			"text"		"Fill clip on kill"
+			"help"		"Give full ammo on kill"
+			"type"		"CheckBox"
+			"default"	"1"
+		}
+		
+		2
+		{
+			"name"		"gg_spawnprotection"
+			"text"		"Spawn protection (seconds)"
+			"help"		"Seconds of spawn protection"
+			"type"		"Numeric"
+			"default"	"3"
+		}
+		
+		3
+		{
+			"name"		"gg_maxrounds"
+			"text"		"Rounds"
+			"help"		"Rounds per map"
+			"type"		"Numeric"
+			"default"	"5"
+		}
+		
+		4
+		{
+			"name"		"gg_kills_per_level"
+			"text"		"Kills per level"
+			"help"		"Kills requried for levelup"
+			"type"		"Numeric"
+			"default"	"2"
+		}
+		
+		5
+		{
+			"name"		"gg_freeforall"
+			"text"		"free for all for TTT or GM maps"
+			"help"		"Set to 1 on ttt_ or gm_ maps"
+			"type"		"CheckBox"
+			"default"	"0"
+		}
+
+	}
+}
