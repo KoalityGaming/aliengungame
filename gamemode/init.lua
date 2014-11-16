@@ -7,6 +7,7 @@ GM = GM or GAMEMODE
 
 
 
+
 function GM:Initialize()
 	print("///////////////////////////////////////////////")
 	print("Initializing GunGame on Map - "..game.GetMap())
@@ -152,7 +153,6 @@ function CreateSpawns(map)
 					CreateImportedEnt("info_player_deathmatch", pos, ang, kv)
 				end
 			end
-
 		end
 	end
 end
@@ -200,10 +200,58 @@ end
 
 function GM:PlayerSelectSpawn( ply )
 
-	local spawnsFFA = ents.FindByClass( "info_player_deathmatch" )
-	local random_entryFFA = math.random(#spawnsFFA)
+	local bestDist = 0
+	local bestSpawn = nil
 
-	return spawnsFFA[random_entryFFA]
+	for k, v in pairs( ents.FindByClass("info_player_deathmatch")) do
+
+		sPos = v:GetPos()
+		print(sPos)
+
+		-- Find the  distance to the closest player from this spawn
+		local closestToThisSpawn = 100000000000
+		for l, w in pairs(player.GetAll()) do
+
+			if not (ply == w) then
+				delta = sPos:Distance(w:GetPos())
+
+				print(delta)
+
+				if delta < closestToThisSpawn then
+					closestToThisSpawn = delta
+				end
+			end
+
+
+		end
+
+
+
+		if closestToThisSpawn > bestDist then
+
+
+			bestDist = closestToThisSpawn
+			bestSpawn = v
+		end
+	end
+
+	-- Something went wrong and no best spawn was found, just return something random
+	if bestSpawn == nil then
+
+		print("Failed, pick random")
+
+		local spawnsFFA = ents.FindByClass( "info_player_deathmatch" )
+
+		local random_entryFFA = math.random(#spawnsFFA)
+
+		return spawnsFFA[random_entryFFA]
+
+	-- Return the spawn furthest from any player
+	else
+
+		print("Found the best spawn")
+		return bestSpawn
+	end
 end
 
 
@@ -364,6 +412,7 @@ function CleanUp()
 		end
 	end
 	game.CleanUpMap()
+	CreateSpawns(game.GetMap())
 end
 ----- round end -----
 
