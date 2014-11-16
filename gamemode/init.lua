@@ -206,7 +206,6 @@ function GM:PlayerSelectSpawn( ply )
 	for k, v in pairs( ents.FindByClass("info_player_deathmatch")) do
 
 		sPos = v:GetPos()
-		print(sPos)
 
 		-- Find the  distance to the closest player from this spawn
 		local closestToThisSpawn = 100000000000
@@ -215,7 +214,6 @@ function GM:PlayerSelectSpawn( ply )
 			if not (ply == w) then
 				delta = sPos:Distance(w:GetPos())
 
-				print(delta)
 
 				if delta < closestToThisSpawn then
 					closestToThisSpawn = delta
@@ -238,7 +236,6 @@ function GM:PlayerSelectSpawn( ply )
 	-- Something went wrong and no best spawn was found, just return something random
 	if bestSpawn == nil then
 
-		print("Failed, pick random")
 
 		local spawnsFFA = ents.FindByClass( "info_player_deathmatch" )
 
@@ -249,7 +246,6 @@ function GM:PlayerSelectSpawn( ply )
 	-- Return the spawn furthest from any player
 	else
 
-		print("Found the best spawn")
 		return bestSpawn
 	end
 end
