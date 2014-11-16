@@ -8,7 +8,7 @@ GMGG = {}
 
 CreateConVar("gg_ammo_on_kill",1,{FCVAR_REPLICATED,FCVAR_ARCHIVE},"Fill clip on kill")
 CreateConVar("gg_spawnprotection",3,{FCVAR_REPLICATED,FCVAR_ARCHIVE},"Spawn protection seconds")
-CreateConVar("gg_seconds_before_rankup_on_kill", 2, {FCVAR_REPLICATED,FCVAR_ARCHIVE},"Time before kill rankup in seconds")
+CreateConVar("gg_seconds_before_rankup_on_kill", 0, {FCVAR_REPLICATED,FCVAR_ARCHIVE},"Time before kill rankup in seconds")
 CreateConVar("gg_maxrounds",3,{FCVAR_REPLICATED,FCVAR_ARCHIVE},"Rounds per map")
 CreateConVar("gg_kills_per_level",2,{FCVAR_REPLICATED,FCVAR_ARCHIVE},"kills per level")
 CreateConVar("gg_freeforall",0,{FCVAR_REPLICATED,FCVAR_ARCHIVE},"free for all for TTT maps")
