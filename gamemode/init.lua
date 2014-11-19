@@ -171,6 +171,26 @@ function GM:PlayerDeathSound( )
 	return true
 end
 
+function GM:PlayerSpawn(ply)
+
+	ply:SetupHands()
+
+
+	-- Call item loadout function
+	hook.Call( "PlayerLoadout", GAMEMODE, ply )
+	
+	-- Set player model
+	hook.Call( "PlayerSetModel", GAMEMODE, ply )
+
+
+	local ang = ply:EyeAngles()
+	if ang.r != 0 then
+		ang.r = 0
+		ply:SetEyeAngles(ang)
+	end
+end
+
+
 function GM:PlayerInitialSpawn(ply)
 	ply:SetNWInt("level", 1)
 	ply:SetNWInt("streak", 0)
