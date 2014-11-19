@@ -200,6 +200,8 @@ function GM:PlayerInitialSpawn(ply)
 	ply:SetNWInt("Kills",0)
 	ply:SetNWFloat("lastspawn", CurTime())
 
+	ply:SetTeam(1)
+
 end
 
 

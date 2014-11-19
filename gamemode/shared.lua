@@ -4,6 +4,12 @@ DeriveGamemode("base")
 
 GMGG = {}
 
+function GMGG.AddTeam(n, str, col1, col2, col3)
+	team.SetUp(n, str, Color(col1, col2, col3))
+end
+
+GMGG.AddTeam(1, "Terrorist", 255, 0, 0)
+
 
 
 CreateConVar("gg_ammo_on_kill",1,{FCVAR_REPLICATED,FCVAR_ARCHIVE},"Fill clip on kill")
